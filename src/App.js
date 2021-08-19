@@ -1,5 +1,6 @@
 // import './App.css';
 import React, { useState } from 'react';
+import dayjs from 'dayjs';
 import styled from '@emotion/styled';
 import { ThemeProvider } from '@emotion/react';
 
@@ -129,29 +130,44 @@ const DayCloudy = styled(DayCloudyIcon)`
 function App() {
   const [currentTheme, setCurrentTheme] = useState('light');
 
+  const [currentWeather, setCurrentWeather] = useState({
+    locationName: '台北市',
+    description: '多雲時晴',
+    temperature: 22.9,
+    windSpeed: 1.1,
+    rainPossibility: 48.3,
+    observationTime: '2021-08-19 17:20:23'
+  });
+
   return (
     <ThemeProvider theme={theme[currentTheme]}>
       <Container>
         <WeatherCard>
 
-          <Location>台北市</Location>
-          <Description>多雲時晴</Description>
+          <Location>{currentWeather.locationName}</Location>
+          <Description>{currentWeather.description}</Description>
 
           <CurrentWeather>
             <Temperature>
-              23<Celsius>°C</Celsius>
+              {Math.round(currentWeather.temperature)}<Celsius>°C</Celsius>
             </Temperature>
             <DayCloudy />
           </CurrentWeather>
 
           <AirFlow>
-            <AirFlowIcon />23 m/h
+            <AirFlowIcon />{currentWeather.windSpeed} m/h
           </AirFlow>
           <Rain>
-            <RainIcon />48%
+            <RainIcon />{currentWeather.rainPossibility}%
           </Rain>
           <Refresh>
-            最後觀測時間：上午 12:03 <RefreshIcon />
+            最後觀測時間：
+            {new Intl.DateTimeFormat('zh-tw', {
+              hour: 'numeric',
+              minute: 'numeric'
+            }).format(dayjs(currentWeather.observationTime))}
+            {' '}
+            < RefreshIcon />
           </Refresh>
 
         </WeatherCard>
