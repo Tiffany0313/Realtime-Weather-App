@@ -9,6 +9,7 @@ import { ReactComponent as AirFlowIcon } from './images/airFlow.svg';
 import { ReactComponent as RainIcon } from './images/rain.svg';
 import { ReactComponent as RefreshIcon } from './images/refresh.svg';
 
+
 const theme = {
   light: {
     backgroundColor: '#ededed',
@@ -127,6 +128,9 @@ const DayCloudy = styled(DayCloudyIcon)`
   flex-basis: 30%;
 `;
 
+const AUTHORIZATION_KEY = "CWB-9DB3B19C-35F5-40E4-9AE3-0C21C9ECB985";
+const LOCATION_NAME = "新竹";
+
 function App() {
   const [currentTheme, setCurrentTheme] = useState('light');
 
@@ -138,6 +142,38 @@ function App() {
     rainPossibility: 48.3,
     observationTime: '2021-08-19 17:20:23'
   });
+
+  const handleClick = () => {
+
+
+    fetch(`https://opendata.cwb.gov.tw/api/v1/rest/datastore/O-A0003-001?Authorization=${AUTHORIZATION_KEY}&locationName=${LOCATION_NAME}`)
+
+      .then((response) => response.json())
+      .then((data) => {
+        // console.log('data', data) 
+        const locationData = data.records.location[0];
+
+        const weatherElements = locationData.weatherElement.reduce(
+          (neededElements, item) => {
+            if (['WDSD', 'TEMP'].includes(item.elementName)) {
+              neededElements[item.elementName] = item.elementValue;
+            }
+            return neededElements;
+          }, {}
+        )
+        console.log(weatherElements)
+
+        setCurrentWeather({
+          observationTime: locationData.time.obsTime,
+          locationName: locationData.locationName,
+          temperature: weatherElements.TEMP,
+          windSpeed: weatherElements.WDSD,
+          description: '多雲時晴',
+          rainPossibility: 60
+        })
+
+      })
+  }
 
   return (
     <ThemeProvider theme={theme[currentTheme]}>
@@ -160,7 +196,7 @@ function App() {
           <Rain>
             <RainIcon />{currentWeather.rainPossibility}%
           </Rain>
-          <Refresh>
+          <Refresh onClick={handleClick}>
             最後觀測時間：
             {new Intl.DateTimeFormat('zh-tw', {
               hour: 'numeric',
