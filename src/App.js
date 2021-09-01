@@ -1,5 +1,5 @@
 // import './App.css';
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import dayjs from 'dayjs';
 import styled from '@emotion/styled';
 import { ThemeProvider } from '@emotion/react';
@@ -8,7 +8,7 @@ import { ReactComponent as DayCloudyIcon } from './images/day-cloudy.svg';
 import { ReactComponent as AirFlowIcon } from './images/airFlow.svg';
 import { ReactComponent as RainIcon } from './images/rain.svg';
 import { ReactComponent as RefreshIcon } from './images/refresh.svg';
-
+import { ReactComponent as LoadindIcon } from './images/loading.svg';
 
 const theme = {
   light: {
@@ -116,11 +116,22 @@ const Refresh = styled.div`
   align-items: flex-end;
   color: ${({ theme }) => theme.textColor};
 
-  svg{
+  @keyframes rotate{
+    from {
+      transform: rotate(360deg);
+    }
+    to {
+      transform: rotate(0deg);
+    }
+  }
+
+  svg {
     margin-left: 10px;
     width: 15px;
     height: 15px;
     cursor: pointer;
+    animation: rotate infinite 1.5s linear;
+    animation-duration: ${({ isLoading }) => (isLoading ? '1.5s' : '0s')}
   }
 `;
 
@@ -132,6 +143,7 @@ const AUTHORIZATION_KEY = "CWB-9DB3B19C-35F5-40E4-9AE3-0C21C9ECB985";
 const LOCATION_NAME = "新竹";
 
 function App() {
+  console.log('invoke');
   const [currentTheme, setCurrentTheme] = useState('light');
 
   const [currentWeather, setCurrentWeather] = useState({
@@ -140,11 +152,24 @@ function App() {
     temperature: 22.9,
     windSpeed: 1.1,
     rainPossibility: 48.3,
-    observationTime: '2021-08-19 17:20:23'
+    observationTime: '2021-08-19 17:20:23',
+    isLoading: true
   });
 
-  const handleClick = () => {
+  const {
+    locationName,
+    description,
+    temperature,
+    windSpeed,
+    rainPossibility,
+    observationTime,
+    isLoading
+  } = currentWeather; //物件解構賦值
 
+  const fetchCurrentWeather = () => {
+
+    //透過傳入函式(複製前一份的資料，再把要更改的資料放在後面)，才不會覆蓋掉舊資料
+    setCurrentWeather((prevState) => ({ ...prevState, isLoading: true }));
 
     fetch(`https://opendata.cwb.gov.tw/api/v1/rest/datastore/O-A0003-001?Authorization=${AUTHORIZATION_KEY}&locationName=${LOCATION_NAME}`)
 
@@ -161,7 +186,7 @@ function App() {
             return neededElements;
           }, {}
         )
-        console.log(weatherElements)
+        // console.log(weatherElements)
 
         setCurrentWeather({
           observationTime: locationData.time.obsTime,
@@ -169,41 +194,48 @@ function App() {
           temperature: weatherElements.TEMP,
           windSpeed: weatherElements.WDSD,
           description: '多雲時晴',
-          rainPossibility: 60
+          rainPossibility: 60,
+          isLoading: false
         })
 
       })
   }
 
+  useEffect(() => {
+    console.log('useEffect');
+    fetchCurrentWeather();
+  }, [])
+
   return (
     <ThemeProvider theme={theme[currentTheme]}>
       <Container>
+        {console.log('render')}
         <WeatherCard>
 
-          <Location>{currentWeather.locationName}</Location>
-          <Description>{currentWeather.description}</Description>
+          <Location>{locationName}</Location>
+          <Description>{description}</Description>
 
           <CurrentWeather>
             <Temperature>
-              {Math.round(currentWeather.temperature)}<Celsius>°C</Celsius>
+              {Math.round(temperature)}<Celsius>°C</Celsius>
             </Temperature>
             <DayCloudy />
           </CurrentWeather>
 
           <AirFlow>
-            <AirFlowIcon />{currentWeather.windSpeed} m/h
+            <AirFlowIcon />{windSpeed} m/h
           </AirFlow>
           <Rain>
-            <RainIcon />{currentWeather.rainPossibility}%
+            <RainIcon />{rainPossibility}%
           </Rain>
-          <Refresh onClick={handleClick}>
+          <Refresh onClick={fetchCurrentWeather} isLoading={isLoading}>
             最後觀測時間：
             {new Intl.DateTimeFormat('zh-tw', {
               hour: 'numeric',
               minute: 'numeric'
-            }).format(dayjs(currentWeather.observationTime))}
+            }).format(dayjs(observationTime))}
             {' '}
-            < RefreshIcon />
+            {isLoading ? <LoadindIcon /> : < RefreshIcon />}
           </Refresh>
 
         </WeatherCard>
