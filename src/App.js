@@ -1,5 +1,5 @@
 // import './App.css';
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import dayjs from 'dayjs';
 import styled from '@emotion/styled';
 import { ThemeProvider } from '@emotion/react';
@@ -234,26 +234,26 @@ function App() {
     isLoading
   } = weatherElement; //物件解構賦值
 
+  const fetchData = useCallback(async () => {
+
+    //透過傳入函式(複製前一份的資料，再把要更改的資料放在後面)，才不會覆蓋掉舊資料
+    setWeatherElement((prevState) => ({ ...prevState, isLoading: true }));
+
+    const [currentWeather, weatherForecast] = await Promise.all([fetchCurrentWeather(), fetchWeatherForecast()]);
+
+    setWeatherElement({
+      ...currentWeather,
+      ...weatherForecast,
+      isLoading: false
+    })
+  }, [])
+
   useEffect(() => {
     console.log('useEffect');
 
-    const fetchData = async () => {
-
-      //透過傳入函式(複製前一份的資料，再把要更改的資料放在後面)，才不會覆蓋掉舊資料
-      setWeatherElement((prevState) => ({ ...prevState, isLoading: true }));
-
-      const [currentWeather, weatherForecast] = await Promise.all([fetchCurrentWeather(), fetchWeatherForecast()]);
-
-      setWeatherElement({
-        ...currentWeather,
-        ...weatherForecast,
-        isLoading: false
-      })
-    }
-
     fetchData();
 
-  }, [])
+  }, [fetchData])
 
 
   return (
@@ -278,7 +278,7 @@ function App() {
           <Rain>
             <RainIcon />{rainPossibility}%
           </Rain>
-          <Refresh onClick={() => { fetchCurrentWeather(); fetchWeatherForecast(); }} isLoading={isLoading}>
+          <Refresh onClick={fetchData} isLoading={isLoading}>
             最後觀測時間：
             {new Intl.DateTimeFormat('zh-tw', {
               hour: 'numeric',
