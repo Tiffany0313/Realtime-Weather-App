@@ -4,7 +4,7 @@ import dayjs from 'dayjs';
 import styled from '@emotion/styled';
 import { ThemeProvider } from '@emotion/react';
 
-import { ReactComponent as DayCloudyIcon } from './images/day-cloudy.svg';
+import WeatherIcon from './components/WeatherIcon';
 import { ReactComponent as AirFlowIcon } from './images/airFlow.svg';
 import { ReactComponent as RainIcon } from './images/rain.svg';
 import { ReactComponent as RefreshIcon } from './images/refresh.svg';
@@ -135,9 +135,6 @@ const Refresh = styled.div`
   }
 `;
 
-const DayCloudy = styled(DayCloudyIcon)`
-  flex-basis: 30%;
-`;
 
 const AUTHORIZATION_KEY = "CWB-9DB3B19C-35F5-40E4-9AE3-0C21C9ECB985";
 const LOCATION_NAME = "新竹";
@@ -269,7 +266,7 @@ function App() {
             <Temperature>
               {Math.round(temperature)}<Celsius>°C</Celsius>
             </Temperature>
-            <DayCloudy />
+            <WeatherIcon />
           </CurrentWeather>
 
           <AirFlow>
