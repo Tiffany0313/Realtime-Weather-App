@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import styled from '@emotion/styled';
 import { ReactComponent as DayThunderstorm } from '../images/day-thunderstorm.svg';
 import { ReactComponent as DayClear } from '../images/day-clear.svg';
@@ -63,16 +63,20 @@ const weatherCode2Type = (weatherCode) => {
         Object.entries(weatherTypes).find(([weatherType, weatherCodes]) =>
             weatherCodes.includes(Number(weatherCode))
         ) || [];
-    return weatherType;
+    return weatherType; // isClear
 };
 
 const weatherCode = 1;
 console.log(weatherCode2Type(weatherCode));
 
-const WeatherIcon = () => {
+const WeatherIcon = ({ weatherCode, moment }) => {
+
+    const weatherType = useMemo(() => weatherCode2Type(weatherCode), [weatherCode]); //回傳值
+    const weatherIcon = weatherIcons[moment][weatherType];
+
     return (
         <IconContainer>
-            <DayCloudy />
+            {weatherIcon}
         </IconContainer>
     )
 }
