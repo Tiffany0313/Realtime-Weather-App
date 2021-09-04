@@ -1,4 +1,4 @@
-##如何更新日出日落檔案
+## 如何更新日出日落檔案
 
 未來（2021 年後）只需要下載新的日出日落檔案，同樣放在 utils 資料夾中，接著進到專案後，
 透過終端機輸入 npm run build:sunrise-sunset 後，就可以產生 sunrise-sunset.json 的檔案。
