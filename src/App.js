@@ -1,10 +1,11 @@
 // import './App.css';
-import React, { useState, useEffect, useCallback, useMemo } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import styled from '@emotion/styled';
 import { ThemeProvider } from '@emotion/react';
 
 import WeatherCard from './views/WeatherCard';
 import { getMoment } from './utils/helpers';
+import useWeatherAPI from './hooks/useWeatherAPI';
 
 const theme = {
   light: {
@@ -38,111 +39,21 @@ const AUTHORIZATION_KEY = "CWB-9DB3B19C-35F5-40E4-9AE3-0C21C9ECB985";
 const LOCATION_NAME = "新竹";
 const LOCATION_NAME_FORECAST = "新竹市";
 
-const fetchCurrentWeather = () => { //回傳Promise
-
-  return fetch(`https://opendata.cwb.gov.tw/api/v1/rest/datastore/O-A0003-001?Authorization=${AUTHORIZATION_KEY}&locationName=${LOCATION_NAME}`)
-
-    .then((response) => response.json())
-    .then((data) => {
-      // console.log('data', data) 
-      const locationData = data.records.location[0];
-
-      const weatherElements = locationData.weatherElement.reduce(
-        (neededElements, item) => {
-          if (['WDSD', 'TEMP'].includes(item.elementName)) {
-            neededElements[item.elementName] = item.elementValue;
-          }
-          return neededElements;
-        }, {}
-      )
-      // console.log(weatherElements)
-
-      // setWeatherElement((prevState) => (
-      return {
-        // ...prevState,
-        observationTime: locationData.time.obsTime,
-        locationName: locationData.locationName,
-        temperature: weatherElements.TEMP,
-        windSpeed: weatherElements.WDSD,
-        // description: '多雲時晴',
-        // rainPossibility: 60,
-        isLoading: false
-      }
-      // ))
-    })
-}
-
-const fetchWeatherForecast = () => { //回傳Promise
-
-  return fetch(`https://opendata.cwb.gov.tw/api/v1/rest/datastore/F-C0032-001?Authorization=${AUTHORIZATION_KEY}&locationName=${LOCATION_NAME_FORECAST}`)
-
-    .then((response) => (response.json()))
-    .then((data) => {
-      // console.log(data)
-      const locationData = data.records.location[0];
-
-      const weatherElements = locationData.weatherElement.reduce((neededElements, item) => {
-
-        if (['Wx', 'PoP', 'CI'].includes(item.elementName)) {
-          neededElements[item.elementName] = item.time[0].parameter;
-        }
-        return neededElements;
-      }, {}
-      )
-
-      // setWeatherElement((prevState) => (
-      return {
-        // ...prevState,
-        description: weatherElements.Wx.parameterName,
-        weatherCode: weatherElements.Wx.parameterValue,
-        rainPossibility: weatherElements.PoP.parameterName,
-        comfortability: weatherElements.CI.parameterName
-      }
-      // ))
-    })
-}
-
 function App() {
   console.log('invoke');
-  const [currentTheme, setCurrentTheme] = useState('light');
 
-  const [weatherElement, setWeatherElement] = useState({
-    locationName: '',
-    description: '',
-    temperature: 0,
-    windSpeed: 0,
-    rainPossibility: 0,
-    observationTime: new Date(),
-    weatherCode: 0,
-    comfortability: '',
-    isLoading: true
-  });
+  const [weatherElement, fetchData] = useWeatherAPI({
+    locationName: LOCATION_NAME,
+    cityName: LOCATION_NAME_FORECAST,
+    authorizationKey: AUTHORIZATION_KEY
+  })
+
+  const [currentTheme, setCurrentTheme] = useState('light');
 
   const moment = useMemo(() => getMoment(LOCATION_NAME_FORECAST), []);
 
-  const fetchData = useCallback(async () => {
-
-    //透過傳入函式(複製前一份的資料，再把要更改的資料放在後面)，才不會覆蓋掉舊資料
-    setWeatherElement((prevState) => ({ ...prevState, isLoading: true }));
-
-    const [currentWeather, weatherForecast] = await Promise.all([fetchCurrentWeather(), fetchWeatherForecast()]);
-
-    setWeatherElement({
-      ...currentWeather,
-      ...weatherForecast,
-      isLoading: false
-    })
-  }, []) //回傳函式
-
   useEffect(() => {
-    console.log('useEffect');
-
-    fetchData();
-
-  }, [fetchData])
-
-  useEffect(() => {
-    setCurrentTheme(moment === 'day' ? 'light' : 'night')
+    setCurrentTheme(moment === 'day' ? 'light' : 'dark')
   }, [moment])
 
   return (
