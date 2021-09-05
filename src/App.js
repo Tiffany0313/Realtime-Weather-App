@@ -42,7 +42,9 @@ const AUTHORIZATION_KEY = "CWB-9DB3B19C-35F5-40E4-9AE3-0C21C9ECB985";
 function App() {
   console.log('invoke');
 
-  const [currentCity, setCurrentCity] = useState('臺北市');
+  const storageCity = localStorage.getItem('cityName') || '臺北市'; //前面false就取後面
+
+  const [currentCity, setCurrentCity] = useState(storageCity);
 
   const currentLocation = useMemo(() => findLocation(currentCity), [currentCity]);
 
