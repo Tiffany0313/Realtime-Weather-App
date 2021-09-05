@@ -4,6 +4,8 @@ import styled from '@emotion/styled';
 import { ThemeProvider } from '@emotion/react';
 
 import WeatherCard from './views/WeatherCard';
+import WeatherSetting from './views/WeatherSetting'
+
 import { getMoment } from './utils/helpers';
 import useWeatherAPI from './hooks/useWeatherAPI';
 
@@ -56,11 +58,25 @@ function App() {
     setCurrentTheme(moment === 'day' ? 'light' : 'dark')
   }, [moment])
 
+  const [currentPage, setCurrengePage] = useState('WeatherCard');
+
+  const handleCurrentPageChange = (currentPage) => {
+    setCurrengePage(currentPage);
+  }
+
   return (
     <ThemeProvider theme={theme[currentTheme]}>
       <Container>
         {console.log('render')}
-        <WeatherCard weatherElement={weatherElement} moment={moment} fetchData={fetchData} />
+
+        {currentPage === 'WeatherCard' && (
+          <WeatherCard weatherElement={weatherElement} moment={moment} fetchData={fetchData} handleCurrentPageChange={handleCurrentPageChange} />
+        )}
+
+        {currentPage === 'WeatherSetting' && (
+          <WeatherSetting handleCurrentPageChange={handleCurrentPageChange} />
+        )}
+
       </Container>
     </ThemeProvider>
   );
