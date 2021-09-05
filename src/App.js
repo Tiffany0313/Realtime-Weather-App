@@ -37,7 +37,7 @@ const Container = styled.div`
   justify-content: center;
 `;
 
-const AUTHORIZATION_KEY = "CWB-9DB3B19C-35F5-40E4-9AE3-0C21C9ECB985";
+const AUTHORIZATION_KEY = process.env.REACT_APP_WEATHER;
 
 function App() {
   console.log('invoke');
