@@ -158,5 +158,3 @@ export const availableLocations = [
 export const findLocation = (cityName) => {
     return (availableLocations.find((location) => location.cityName === cityName))
 }
-
-const currentLocation = findLocation('苗栗縣');

@@ -92,9 +92,9 @@ const Save = styled.button`
   }
 `;
 
-const WeatherSetting = ({ handleCurrentPageChange }) => {
+const WeatherSetting = ({ handleCurrentPageChange, handleCurrentCityChange, cityName }) => {
 
-    const [locationName, setLocationName] = useState('新竹市');
+    const [locationName, setLocationName] = useState(cityName);
 
     const handleChange = (e) => {
         // console.log(e.target.value);
@@ -103,7 +103,9 @@ const WeatherSetting = ({ handleCurrentPageChange }) => {
     }
 
     const handleSave = () => {
-        console.log(locationName);
+        // console.log(locationName);
+        handleCurrentCityChange(locationName);
+        handleCurrentPageChange('WeatherCard');
     }
 
     return (
