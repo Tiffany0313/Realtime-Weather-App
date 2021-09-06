@@ -118,7 +118,7 @@ const Cog = styled(CogIcon)`
 const WeatherCard = ({ weatherElement, moment, fetchData, handleCurrentPageChange, cityName }) => {
 
   const {
-    locationName,
+    // locationName,
     description,
     temperature,
     windSpeed,
